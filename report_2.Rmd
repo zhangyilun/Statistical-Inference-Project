@@ -1,0 +1,95 @@
+---
+title: "Project Report 2"
+author: "Yilun Zhang"
+date: "Wednesday, October 22, 2014"
+output: pdf_document
+---
+
+#### Load data \newline
+
+Load data and show the first few lines of the data.
+
+```{r}
+data(ToothGrowth)
+data <- ToothGrowth
+data$dose <- as.factor(data$dose)
+head(data)
+```
+
+#### Exploratory analysis on ToothGrowth data ans basic summary\newline
+
+\noindent Histogram of len variable.
+
+```{r, fig.height=3,fig.width=4}
+hist(data$len)
+```
+
+Mean and standard deviation of len by supp.
+
+```{r}
+tapply(data$len,data$supp,mean)
+tapply(data$len,data$supp,sd)
+```
+
+This shows that OJ has an average len of 20.66333 and VC has an average len of 16.96333
+The standard deviations of len for the two catogories are 6.605561 for OJ and 8.266029 for VC.  
+
+Mean and standard deviation of len by supp.
+
+```{r}
+tapply(data$len,data$dose,mean)
+tapply(data$len,data$dose,sd)
+```
+
+This shows that the mean len are 10.605 for 0.5 dose group, 19.735 for 1 dose group and 26.100 for 2 dose group.  
+The standard deviations of len are 4.499763 for 0.5 dose group, 4.41536 for 1 dose group and 3.774150 for 2 dose group.
+Basic summary of data.
+
+```{r}
+summary(data)
+```
+
+#### Confidence interval and hypothesis test on supp and dose groups\newline
+
+In the exploratory analysis part, we have already calculated the mean and standard deviations for supp subgroups and dose subgroups, and we also know from the summary that there are 30 each for OJ and VC for supp group and 20 each for each dose level.
+
+##### supp group
+
+Confidence interval and hypothesis test for supp group. For the hypothesis test, we are assuming that the null hypothesis is: the two supp groups don't cause difference in len values.
+
+```{r}
+# OJ group
+tapply(data$len,data$supp,mean)[1] + 
+  c(-1,1)*qt(0.975,30-1)*tapply(data$len,data$dose,sd)[1]/sqrt(30)
+# VC group
+tapply(data$len,data$supp,mean)[2] + 
+  c(-1,1)*qt(0.975,30-1)*tapply(data$len,data$dose,sd)[2]/sqrt(30)
+# t-test
+t.test(data[data$supp == "OJ",]$len,data[data$supp == "VC",]$len,paied=F)
+```
+
+We have a p-value of 0.06063>0.05 for the t test, so we cannot reject the null hypothesis which is: the two supp groups don't cause difference in len values.
+
+##### dose group
+
+Confidence interval and hypothesis test for dose group. For the hypothesis test, we are assuming that the null hypothesis is: the 3 dose groups don't cause difference in len values.
+
+```{r}
+# 0.5 dose group
+tapply(data$len,data$dose,mean)[1] + 
+  c(-1,1)*qt(0.975,20-1)*tapply(data$len,data$dose,sd)[1]/sqrt(20)
+# 1 dose group
+tapply(data$len,data$dose,mean)[2] + 
+  c(-1,1)*qt(0.975,20-1)*tapply(data$len,data$dose,sd)[2]/sqrt(20)
+# 2 dose group
+tapply(data$len,data$dose,mean)[3] + 
+  c(-1,1)*qt(0.975,20-1)*tapply(data$len,data$dose,sd)[3]/sqrt(20)
+# t-test: 0.5 vs 1
+t.test(data[data$dose == "0.5",]$len,data[data$dose == "1",]$len,paied=F)
+# t-test: 0.5 vs 2
+t.test(data[data$dose == "0.5",]$len,data[data$dose == "2",]$len,paied=F)
+# t-test: 1 vs 2
+t.test(data[data$dose == "1",]$len,data[data$dose == "2",]$len,paied=F)
+```
+
+We have all the p-values being extremely less than 0,05 for all 3 t-tests, that means, we have sufficient evidence to conclude that dose is an important factor that affects len values.
